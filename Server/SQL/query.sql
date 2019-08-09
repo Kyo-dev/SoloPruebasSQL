@@ -104,6 +104,26 @@ SELECT * from actividades
 --debe existir la orden 
 --si ya existe la comida se debe actualizar la cantidad
 
+
+--NOTE INGRESAR UN ALQUILER
+--debe existir la orden activa
+--debe exister la habitacion 
+--la habitacion debe estar disponible
+CREATE OR REPLACE FUNCTION fn_nuevo_alquiler(_id_orden integer, _id_codigo_habitacion, VARCHAR(10))
+RETURNS VOID AS 
+$BODY$
+BEGIN
+    IF(SELECT activo
+       FROM ordenes
+       WHERE id_orden = _id_orden
+       AND activo = true)
+    THEN
+        
+    END IF;
+END;
+$BODY$
+LANGUAGE 'plpgsql';
+
 --TODO FUNCIONES DE ALQUILER
 
 --TODO PAGO DE LA ORDEN

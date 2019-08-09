@@ -86,23 +86,22 @@ CREATE TABLE tipo_habitacion(
 );
 
 CREATE TABLE habitacion(
-    ID_habitacion SMALLSERIAL,
-    codigo_nombre VARCHAR(10) NOT NULL,
+    ID_codigo_habitacion VARCHAR(10) NOT NULL,
     precio INTEGER NOT NULL,
     id_tipo_habitacion SMALLSERIAL,
-    CONSTRAINT pk_habitacion PRIMARY KEY(ID_habitacion),
-    CONSTRAINT uk_codigo_nombre UNIQUE (codigo_nombre),
+    activo BOOLEAN DEFAULT FALSE,
+    CONSTRAINT pk_habitacion PRIMARY KEY(ID_codigo_habitacion),
     CONSTRAINT fk_id_tipo_habitacion FOREIGN KEY(id_tipo_habitacion) REFERENCES tipo_habitacion(ID_tipo_habitacion) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 CREATE TABLE alquiler (
     ID_alquiler SERIAL,
     pago_total INTEGER NOT NULL,
-    id_habitacion SMALLSERIAL,
+    id_codigo_habitacion VARCHAR(10) NOT NULL,
     fecha_inicio TIMESTAMP DEFAULT now(),
     fecha_fin TIMESTAMP NOT NULL,
     CONSTRAINT pk_alquiler PRIMARY KEY(ID_alquiler),
-    CONSTRAINT fk_id_habitacion FOREIGN KEY (id_habitacion) REFERENCES habitacion(ID_habitacion) ON DELETE RESTRICT ON UPDATE RESTRICT
+    CONSTRAINT fk_id_codigo_habitacion FOREIGN KEY (id_codigo_habitacion) REFERENCES habitacion(ID_codigo_habitacion) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 CREATE TABLE ordenes (
@@ -128,6 +127,7 @@ CREATE TABLE ordenes_usuarios(
     CONSTRAINT fk_dni_usuario FOREIGN KEY (dni_usuario) REFERENCES usuarios(DNI_usuario),
     CONSTRAINT fk_id_orden FOREIGN KEY (id_orden) REFERENCES ordenes(ID_orden)
 );
+
 CREATE TABLE ordenes_actividades(
     id_orden SERIAL,
     id_actividad SERIAL,
@@ -153,5 +153,5 @@ CREATE TABLE ordenes_alquileres(
     activo BOOLEAN DEFAULT TRUE,
     CONSTRAINT pk_ordenes_alquileres PRIMARY KEY(ID_orden, ID_alquiler),
     CONSTRAINT fk_id_orden FOREIGN KEY (id_orden) REFERENCES ordenes(ID_orden),
-    CONSTRAINT fk_id_alquiler FOREIGN KEY (id_alquiler) REFERENCES ordenes(ID_alquiler)
+    CONSTRAINT fk_id_alquiler FOREIGN KEY (id_alquiler) REFERENCES ordenes(ID_orden)
 );
