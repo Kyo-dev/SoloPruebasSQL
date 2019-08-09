@@ -138,17 +138,20 @@ CREATE TABLE ordenes_actividades(
     CONSTRAINT fk_id_actividad FOREIGN KEY (id_actividad) REFERENCES actividades(ID_actividad)
 );
 
---FIXME  AGREGAR LLAVES FORANEAS
 CREATE TABLE ordenes_comidas(
-    ID_orden SERIAL,
-    ID_comida SERIAL,
+    id_orden SERIAL,
+    id_comida SERIAL,
     activo BOOLEAN DEFAULT TRUE,
-    CONSTRAINT pk_ordenes_comidas PRIMARY KEY(ID_orden, ID_comida)
+    CONSTRAINT pk_ordenes_comidas PRIMARY KEY(ID_orden, ID_comida),
+    CONSTRAINT fk_id_orden FOREIGN KEY (id_orden) REFERENCES ordenes(ID_orden),
+    CONSTRAINT fk_id_comida FOREIGN KEY (id_comida) REFERENCES comidas(ID_comida)
 );
 
 CREATE TABLE ordenes_alquileres(
-    ID_orden SERIAL,
-    ID_alquiler SERIAL,
+    id_orden SERIAL,
+    id_alquiler SERIAL,
     activo BOOLEAN DEFAULT TRUE,
-    CONSTRAINT pk_ordenes_alquileres PRIMARY KEY(ID_orden, ID_alquiler)
+    CONSTRAINT pk_ordenes_alquileres PRIMARY KEY(ID_orden, ID_alquiler),
+    CONSTRAINT fk_id_orden FOREIGN KEY (id_orden) REFERENCES ordenes(ID_orden),
+    CONSTRAINT fk_id_alquiler FOREIGN KEY (id_alquiler) REFERENCES ordenes(ID_alquiler)
 );
