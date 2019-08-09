@@ -20,7 +20,7 @@ END;
 $BODY$
 LANGUAGE 'plpgsql';
 
-SELECT fn_insertar_usuarios('7347', 'NOMBRE','APELLIDOS', 'CORREO', 'CLAVE', '8584588',1);
+SELECT fn_insertar_usuarios('8989', 'Charlotte','APELLIDOS', 'CORREO', 'CLAVE', '8971',1);
 
 --NOTE CREAR UNA ORDEN
 --Debe asignarse a un usuario
@@ -50,15 +50,14 @@ END;
 $BODY$
 LANGUAGE'plpgsql';
 
-
-SELECT fn_crear_orden('SOY UN DETALLE', '17');
+SELECT fn_crear_orden('ORDEN 1 DE CHARLOTTE', '8989');
 
     UPDATE ordenes_usuarios
     SET activo = false 
     WHERE id_orden = 17;
 
-SELECT * from ordenes_usuarios
-SELECT * from usuarios
+SELECT * from ordenes_usuarios;
+SELECT * from usuarios;
 
 
 --NOTE  INGRESAR ACTIVIDADES EN LA ORDEN
@@ -88,7 +87,7 @@ END;
 $BODY$
 LANGUAGE 'plpgsql';
 
-SELECT fn_orden_actividades(19, 1, 5);
+SELECT fn_orden_actividades(20, 1, 5);
 
 SELECT * from ordenes_usuarios
 SELECT * from ordenes_actividades
@@ -104,27 +103,41 @@ SELECT * from actividades
 --debe existir la orden 
 --si ya existe la comida se debe actualizar la cantidad
 
+--TODO FUNCIONES DE ALQUILER
 
 --NOTE INGRESAR UN ALQUILER
 --debe existir la orden activa
 --debe exister la habitacion 
 --la habitacion debe estar disponible
-CREATE OR REPLACE FUNCTION fn_nuevo_alquiler(_id_orden integer, _id_codigo_habitacion, VARCHAR(10))
-RETURNS VOID AS 
-$BODY$
-BEGIN
-    IF(SELECT activo
-       FROM ordenes
-       WHERE id_orden = _id_orden
-       AND activo = true)
-    THEN
-        
-    END IF;
-END;
-$BODY$
-LANGUAGE 'plpgsql';
 
---TODO FUNCIONES DE ALQUILER
+
+SELECT fn_nuevo_orden_alquiler('02-03', '8989', '09/1/2019');
+
+SELECT id_orden FROM ordenes_usuarios WHERE dni_usuario = '8989'
+
+SELECT activo, id_codigo_habitacion
+FROM habitacion
+WHERE id_codigo_habitacion = '02-01'
+    AND activo = false;
+
+INSERT INTO alquileres (fecha_fin, id_codigo_habitacion) 
+    VALUES ('09/1/2019', '02-01' );
+
+DELETE from alquileres WHERE id_alquiler = 1;
+
+SELECT * from ordenes;
+SELECT * from ordenes_alquileres;
+SELECT * from ordenes_actividades;
+SELECT * from alquileres;
+SELECT * FROM habitacion
+SELECT * from ordenes_usuarios
+
+    UPDATE habitacion
+    SET activo = true
+    WHERE id_codigo_habitacion = '02-03'
+
+SELECT MAX (id_alquiler) FROM alquileres;
+
 
 --TODO PAGO DE LA ORDEN
 --suma de los totales de comida, habitacion y actividad vinculada a la orden del usuario

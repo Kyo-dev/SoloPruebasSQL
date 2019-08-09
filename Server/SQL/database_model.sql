@@ -94,11 +94,10 @@ CREATE TABLE habitacion(
     CONSTRAINT fk_id_tipo_habitacion FOREIGN KEY(id_tipo_habitacion) REFERENCES tipo_habitacion(ID_tipo_habitacion) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
-CREATE TABLE alquiler (
+CREATE TABLE alquileres (
     ID_alquiler SERIAL,
-    pago_total INTEGER NOT NULL,
     id_codigo_habitacion VARCHAR(10) NOT NULL,
-    fecha_inicio TIMESTAMP DEFAULT now(),
+    fecha_inicio TIMESTAMP DEFAULT now() NOT NULL,
     fecha_fin TIMESTAMP NOT NULL,
     CONSTRAINT pk_alquiler PRIMARY KEY(ID_alquiler),
     CONSTRAINT fk_id_codigo_habitacion FOREIGN KEY (id_codigo_habitacion) REFERENCES habitacion(ID_codigo_habitacion) ON DELETE RESTRICT ON UPDATE RESTRICT
