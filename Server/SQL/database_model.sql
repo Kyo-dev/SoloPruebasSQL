@@ -145,7 +145,7 @@ CREATE TABLE ordenes_comidas(
     CONSTRAINT fk_id_orden FOREIGN KEY (id_orden) REFERENCES ordenes(ID_orden),
     CONSTRAINT fk_id_comida FOREIGN KEY (id_comida) REFERENCES comidas(ID_comida)
 );
-
+-- FIXME CAMBIAR POR ORDENES_HABITACION NO SE NECESITAN ALQUILES 1 PERSONA PUEDE TENER MUCHAS HABITACIONES
 CREATE TABLE ordenes_alquileres(
     id_orden SERIAL,
     id_alquiler SERIAL,

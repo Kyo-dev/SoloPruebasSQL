@@ -1,3 +1,4 @@
+--TODO USUARIOS
 --NOTE INSERT PERSONAS CON UN TELEFONO
 --al crear un usuario necesita como minimo un telefono
 --el telefono tiene una coleccion que se debe porder modificar a la hora de insertar
@@ -21,7 +22,7 @@ $BODY$
 LANGUAGE 'plpgsql';
 
 SELECT fn_insertar_usuarios('8989', 'Charlotte','APELLIDOS', 'CORREO', 'CLAVE', '8971',1);
-
+--TODO ORDENES
 --NOTE CREAR UNA ORDEN
 --Debe asignarse a un usuario
 --El usuario no puede tener una orden activa
@@ -94,50 +95,16 @@ SELECT * from ordenes_actividades
 SELECT * from actividades
 SELECT * from actividades
 
---NOTE ACTUALIZAR ACTIVIDAD DE LA ORDEN
-
---NOTE ELIMINAR ACTIVIDAD DE LA ORDEN
---no debe haber pasado la fecha
-
 --NOTE INGRESAR COMIDAS A LA ORDEN
 --debe existir la orden 
 --si ya existe la comida se debe actualizar la cantidad
 
---TODO FUNCIONES DE ALQUILER
+--NOTE ELIMINAR ACTIVIDAD DE LA ORDEN
+--no debe haber pasado la fecha
 
---NOTE INGRESAR UN ALQUILER
---debe existir la orden activa
---debe exister la habitacion 
---la habitacion debe estar disponible
-
-
-SELECT fn_nuevo_orden_alquiler('02-03', '8989', '09/1/2019');
-
-SELECT id_orden FROM ordenes_usuarios WHERE dni_usuario = '8989'
-
-SELECT activo, id_codigo_habitacion
-FROM habitacion
-WHERE id_codigo_habitacion = '02-01'
-    AND activo = false;
-
-INSERT INTO alquileres (fecha_fin, id_codigo_habitacion) 
-    VALUES ('09/1/2019', '02-01' );
-
-DELETE from alquileres WHERE id_alquiler = 1;
-
-SELECT * from ordenes;
-SELECT * from ordenes_alquileres;
-SELECT * from ordenes_actividades;
-SELECT * from alquileres;
-SELECT * FROM habitacion
-SELECT * from ordenes_usuarios
-
-    UPDATE habitacion
-    SET activo = true
-    WHERE id_codigo_habitacion = '02-03'
-
-SELECT MAX (id_alquiler) FROM alquileres;
-
+--NOTE HABITACION
+--debe existir la orden
+--debe existir la habitacion y no estar ocupada 
 
 --TODO PAGO DE LA ORDEN
 --suma de los totales de comida, habitacion y actividad vinculada a la orden del usuario
