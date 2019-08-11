@@ -73,7 +73,7 @@ IF((SELECT activo
     FROM ordenes_usuarios
     WHERE id_orden = _id_orden
     AND activo = true) 
-AND
+AND 
     (SELECT activo
      FROM actividades
      WHERE ID_actividad = _id_actividad 
@@ -88,12 +88,26 @@ END;
 $BODY$
 LANGUAGE 'plpgsql';
 
-SELECT fn_orden_actividades(20, 1, 5);
-
-SELECT * from ordenes_usuarios
-SELECT * from ordenes_actividades
-SELECT * from actividades
-SELECT * from actividades
+CREATE OR REPLACE FUNCTION fn_orden_habitacion(_id_orden integer, _id_codigo_habitacion varchar(10))
+RETURNS VOID AS
+$BODY$
+BEGIN
+IF((SELECT activo
+    FROM ordenes_usuarios
+    WHERE id_orden = _id_orden
+    AND activo = true) 
+AND 
+    (SELECT activo
+     FROM habitaciones
+     WHERE ID_codigo_habitacion = _id_codigo_habitacion
+     AND activo = true))
+        THEN
+            INSERT INTO ordenes_habitaciones (id_orden, id_codigo_habitacion)
+            VALUES(_id_orden, _id_codigo_habitacion);
+END IF; 
+END;
+$BODY$
+LANGUAGE 'plpgsql';
 
 --NOTE INGRESAR COMIDAS A LA ORDEN
 --debe existir la orden 
@@ -108,3 +122,4 @@ SELECT * from actividades
 
 --TODO PAGO DE LA ORDEN
 --suma de los totales de comida, habitacion y actividad vinculada a la orden del usuario
+
