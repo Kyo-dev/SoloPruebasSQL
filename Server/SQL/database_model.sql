@@ -58,22 +58,25 @@ CREATE TABLE actividades (
     CONSTRAINT fk_id_tipo_actividad FOREIGN KEY(id_tipo_actividad) REFERENCES tipo_actividad (ID_tipo_actividad) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
-CREATE TABLE tipo_comida(
-    ID_tipo_comida SERIAL,
+-- CREATE TABLE tipo_comida(
+--     ID_tipo_comida SERIAL,
+--     nombre VARCHAR(100) NOT NULL,
+--     descripcion VARCHAR(200) NOT NULL,
+--     precio INTEGER NOT NULL,
+--     activo BOOLEAN DEFAULT TRUE NOT NULL,
+--     CONSTRAINT pk_tipo_comida PRIMARY KEY (ID_tipo_comida),
+--     CONSTRAINT uk_nombre_comida UNIQUE (nombre)
+-- );
+
+CREATE TABLE comidas(
+    ID_comida SERIAL,
     nombre VARCHAR(100) NOT NULL,
     descripcion VARCHAR(200) NOT NULL,
     precio INTEGER NOT NULL,
     activo BOOLEAN DEFAULT TRUE NOT NULL,
-    CONSTRAINT pk_tipo_comida PRIMARY KEY (ID_tipo_comida),
-    CONSTRAINT uk_nombre_comida UNIQUE (nombre)
-);
-
-CREATE TABLE comidas(
-    ID_comida SERIAL,
-    cantidad INTEGER DEFAULT 1 NOT NULL,
-    id_tipo_comida SERIAL,
     CONSTRAINT pk_comidas PRIMARY KEY (ID_comida),
-    CONSTRAINT fk_id_tipo_comida FOREIGN KEY (id_tipo_comida) REFERENCES tipo_comida(ID_tipo_comida) ON DELETE RESTRICT ON UPDATE RESTRICT
+    -- CONSTRAINT fk_id_tipo_comida FOREIGN KEY (id_tipo_comida) REFERENCES tipo_comida(ID_tipo_comida) ON DELETE RESTRICT ON UPDATE RESTRICT
+     CONSTRAINT uk_nombre_comida UNIQUE (nombre)
 );
 
 CREATE TABLE tipo_habitacion(
@@ -88,7 +91,7 @@ CREATE TABLE habitaciones(
     ID_codigo_habitacion VARCHAR(10) NOT NULL,
     precio INTEGER NOT NULL,
     id_tipo_habitacion SMALLSERIAL,
-    activo BOOLEAN DEFAULT TRUE,
+    activo BOOLEAN DEFAULT FALSE,
     CONSTRAINT pk_habitacion PRIMARY KEY(ID_codigo_habitacion),
     CONSTRAINT fk_id_tipo_habitacion FOREIGN KEY(id_tipo_habitacion) REFERENCES tipo_habitacion(ID_tipo_habitacion) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
@@ -133,16 +136,19 @@ CREATE TABLE ordenes_actividades(
     activo BOOLEAN DEFAULT TRUE,
     CONSTRAINT pk_ordenes_actividades PRIMARY KEY(ID_orden, ID_actividad),
     CONSTRAINT fk_id_orden FOREIGN KEY (id_orden) REFERENCES ordenes(ID_orden),
-    CONSTRAINT fk_id_actividad FOREIGN KEY (id_actividad) REFERENCES actividades(ID_actividad)
+    CONSTRAINT fk_id_actividad FOREIGN KEY (id_actividad) REFERENCES actividades(ID_actividad),
+    CONSTRAINT ck_ordedenes_actividades CHECK (cantidad >= 0)
 );
 
 CREATE TABLE ordenes_comidas(
     id_orden SERIAL,
     id_comida SERIAL,
+    cantidad INTEGER DEFAULT 1 NOT NULL,
     activo BOOLEAN DEFAULT TRUE,
     CONSTRAINT pk_ordenes_comidas PRIMARY KEY(ID_orden, ID_comida),
     CONSTRAINT fk_id_orden FOREIGN KEY (id_orden) REFERENCES ordenes(ID_orden),
-    CONSTRAINT fk_id_comida FOREIGN KEY (id_comida) REFERENCES comidas(ID_comida)
+    CONSTRAINT fk_id_comida FOREIGN KEY (id_comida) REFERENCES comidas(ID_comida),
+    CONSTRAINT ck_ordenes_comidas CHECK (cantidad >= 0)
 );
 
 CREATE TABLE ordenes_habitaciones(
@@ -154,15 +160,16 @@ CREATE TABLE ordenes_habitaciones(
     CONSTRAINT fk_codigo_habitacion FOREIGN KEY (id_codigo_habitacion) REFERENCES habitaciones (ID_codigo_habitacion)
 );
 
--- FIXME CAMBIAR POR ORDENES_HABITACION NO SE NECESITAN ALQUILES 1 PERSONA PUEDE TENER MUCHAS HABITACIONES
-CREATE TABLE ordenes_alquileres(
-    id_orden SERIAL,
-    id_alquiler SERIAL,
-    activo BOOLEAN DEFAULT TRUE,
-    CONSTRAINT pk_ordenes_alquileres PRIMARY KEY(ID_orden, ID_alquiler),
-    CONSTRAINT fk_id_orden FOREIGN KEY (id_orden) REFERENCES ordenes(ID_orden),
-    CONSTRAINT fk_id_alquiler FOREIGN KEY (id_alquiler) REFERENCES ordenes(ID_orden)
-);
+-- NOTE (CREO QUE YA NO SE NECESITA ESTA TABLA) CAMBIAR POR ORDENES_HABITACION NO SE NECESITAN ALQUILES 1 PERSONA PUEDE TENER MUCHAS HABITACIONES
+-- CREATE TABLE ordenes_alquileres(
+--     id_orden SERIAL,
+--     id_alquiler SERIAL,
+--     activo BOOLEAN DEFAULT TRUE,
+--     CONSTRAINT pk_ordenes_alquileres PRIMARY KEY(ID_orden, ID_alquiler),
+--     CONSTRAINT fk_id_orden FOREIGN KEY (id_orden) REFERENCES ordenes(ID_orden),
+--     CONSTRAINT fk_id_alquiler FOREIGN KEY (id_alquiler) REFERENCES ordenes(ID_orden)
+-- );
+
 
 Select * FROM habitaciones;
 
