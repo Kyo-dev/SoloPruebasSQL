@@ -19,6 +19,7 @@ CREATE TABLE usuarios(
     correo TEXT NOT NULL,
     clave TEXT NOT NULL,
     id_rol SMALLINT DEFAULT 1,
+    activo BOOLEAN DEFAULT TRUE,
     CONSTRAINT pk_usuario PRIMARY KEY(DNI_usuario),
     CONSTRAINT uk_correo UNIQUE (correo),
     CONSTRAINT fk_usuarios_roles FOREIGN KEY (id_rol) REFERENCES roles (ID_rol) ON DELETE RESTRICT ON UPDATE RESTRICT
@@ -54,6 +55,7 @@ CREATE TABLE actividades (
     id_tipo_actividad SERIAL,
     activo BOOLEAN DEFAULT TRUE NOT NULL,
     precio INTEGER NOT NULL,
+    descripcion VARCHAR(300) NOT NULL,
     CONSTRAINT pk_actividades PRIMARY KEY(ID_actividad),
     CONSTRAINT fk_id_tipo_actividad FOREIGN KEY(id_tipo_actividad) REFERENCES tipo_actividad (ID_tipo_actividad) ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT ck_precio_actividad CHECK (precio >= 0 )
@@ -84,15 +86,6 @@ CREATE TABLE habitaciones(
     activo BOOLEAN DEFAULT TRUE,
     CONSTRAINT pk_habitacion PRIMARY KEY(ID_codigo_habitacion),
     CONSTRAINT fk_id_tipo_habitacion FOREIGN KEY(id_tipo_habitacion) REFERENCES tipo_habitacion(ID_tipo_habitacion) ON DELETE RESTRICT ON UPDATE RESTRICT
-);
-
-CREATE TABLE alquileres (
-    ID_alquiler SERIAL,
-    id_codigo_habitacion VARCHAR(10) NOT NULL,
-    fecha_inicio TIMESTAMP DEFAULT now() NOT NULL,
-    fecha_fin TIMESTAMP NOT NULL,
-    CONSTRAINT pk_alquiler PRIMARY KEY(ID_alquiler, id_codigo_habitacion),
-    CONSTRAINT fk_id_codigo_habitacion FOREIGN KEY (id_codigo_habitacion) REFERENCES habitaciones(ID_codigo_habitacion) ON DELETE RESTRICT ON UPDATE RESTRICT
 );
 
 CREATE TABLE ordenes (
@@ -144,8 +137,19 @@ CREATE TABLE ordenes_comidas(
 CREATE TABLE ordenes_habitaciones(
     id_orden SERIAL,
     id_codigo_habitacion VARCHAR(10),
+    fecha_inicio TIMESTAMP DEFAULT now() NOT NULL,
+    -- fecha_fin TIMESTAMP NOT NULL,
     activo BOOLEAN DEFAULT TRUE,
     CONSTRAINT pk_ordenes_habitacion PRIMARY KEY (id_orden, id_codigo_habitacion),
     CONSTRAINT fk_id_orden FOREIGN KEY (id_orden) REFERENCES ordenes(ID_orden),
     CONSTRAINT fk_codigo_habitacion FOREIGN KEY (id_codigo_habitacion) REFERENCES habitaciones (ID_codigo_habitacion)
 );
+
+-- CREATE TABLE alquileres (
+--     ID_alquiler SERIAL,
+--     id_codigo_habitacion VARCHAR(10) NOT NULL,
+--     fecha_inicio TIMESTAMP DEFAULT now() NOT NULL,
+--     fecha_fin TIMESTAMP NOT NULL,
+--     CONSTRAINT pk_alquiler PRIMARY KEY(ID_alquiler, id_codigo_habitacion),
+--     CONSTRAINT fk_id_codigo_habitacion FOREIGN KEY (id_codigo_habitacion) REFERENCES habitaciones(ID_codigo_habitacion) ON DELETE RESTRICT ON UPDATE RESTRICT
+-- );

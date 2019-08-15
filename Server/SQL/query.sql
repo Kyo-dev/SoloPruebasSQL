@@ -115,8 +115,41 @@ LANGUAGE 'plpgsql';
 
 SELECT fn_orden_habitacion(1, '02-01')
 
---NOTE ELIMINAR UNA HABITACION DE LA ORDEN
+Select * from ordenes_habitaciones;
+Select * from habitaciones;
+Select * from usuarios;
 
+
+--NOTE ELIMINAR UNA HABITACION DE LA ORDEN
+CREATE OR REPLACE FUNCTION fn_quitar_habitacion_orden(_dni_usuario VARCHAR(15), _id_codigo_habitacion VARCHAR(10))
+RETURNS integer AS
+$BODY$
+BEGIN
+IF((SELECT activo
+    FROM ordenes_usuarios
+    WHERE dni_usuario = _dni_usuario
+    AND activo = true)
+AND
+   (SELECT activo
+   FROM ordenes_habitaciones
+   WHERE id_codigo_habitacion = _id_codigo_habitacion
+   AND activo = true))
+    THEN
+        DELETE FROM ordenes_habitaciones
+        WHERE id_codigo_habitacion = _id_codigo_habitacion;
+
+        UPDATE habitaciones
+        SET activo = true
+        WHERE id_codigo_habitacion = _id_codigo_habitacion;
+        RETURN 1;
+
+END IF;
+RETURN 0;
+END;
+$BODY$
+LANGUAGE 'plpgsql';
+
+SELECT fn_quitar_habitacion_orden('309', '02-01');
 
 --NOTE INGRESAR COMIDAS A LA ORDEN
 --debe existir la orden 
@@ -300,18 +333,23 @@ LANGUAGE 'plpgsql';
 --TODO PAGO DE LA ORDEN
 --suma de los totales de comida, habitacion y actividad vinculada a la orden del usuario
 
+--FIXME FALTA INSERTAR EL PAGO DE HABITACIONES 
+--REVISAR QUE PASA SI EL USUARIO NO TIENE COMIDAS O ACTIVIDADES O AMBAS 
 CREATE OR REPLACE FUNCTION fn_pago_orden(_dni_usuario VARCHAR(15))
 RETURNS integer AS
 $BODY$
+
     DECLARE
         _pago_actividades INTEGER;
         _pago_comidas INTEGER;
         _pago_habitaciones INTEGER;
-        _pago_total integer;
+        _pago_total INTEGER;
 BEGIN
+
 IF((SELECT activo
     FROM ordenes_usuarios
-    WHERE activo = true)
+    WHERE dni_usuario = _dni_usuario
+    AND activo = true)
 AND
     (SELECT activo
     FROM usuarios
@@ -319,22 +357,32 @@ AND
     AND activo = true))
 THEN
     _pago_total = 0;
-    _pago_comidas = SUM(a.cantidad * d.precio) FROM ordenes_comidas a JOIN comidas d ON a.id_comida = d.id_comida;
-    _pago_actividades = SUM(a.cantidad * b.precio) FROM ordenes_actividades a JOIN actividades b ON b.id_actividad = a.id_actividad;
-    _pago_habitaciones = SUM
-    _pago_total = _pago_comidas + _pago_actividades;
-    RETURN _pago_total;
 
+    _pago_comidas = SUM(a.cantidad * d.precio) 
+        FROM ordenes_comidas a 
+        JOIN comidas d ON a.id_comida = d.id_comida;
+
+    _pago_actividades = SUM(a.cantidad * b.precio) 
+        FROM ordenes_actividades a 
+        JOIN actividades b ON b.id_actividad = a.id_actividad;
+
+    _pago_total = _pago_comidas + _pago_actividades;
+
+    RETURN _pago_total;
 END IF;
+ RETURN 0;
 END;
+
 $BODY$
 LANGUAGE 'plpgsql';
 
-SELECT fn_pago_orden('309')
+SELECT fn_pago_orden('309');
 
-select _pago_comida
-
-SELECT * FROM usuarios
+SELECT * FROM habitaciones;
+SELECT * FROM ordenes_habitaciones;
+SELECT * FROM ordenes_actividades;
+SELECT * FROM ordenes_comidas;
+SELECT * FROM ordenes_usuarios;
 
 
 
