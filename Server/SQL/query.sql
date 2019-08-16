@@ -1,7 +1,4 @@
---TODO USUARIOS
---NOTE INSERT PERSONAS CON UN TELEFONO
---al crear un usuario necesita como minimo un telefono
---el telefono tiene una coleccion que se debe porder modificar a la hora de insertar
+--SECTION usuarios
 CREATE OR REPLACE FUNCTION fn_crear_usuario(_dni VARCHAR(15), _nombre VARCHAR(20), _apelledo VARCHAR(20), _correo VARCHAR(20), _clave VARCHAR(20), _numero VARCHAR(20), _id_tipo_telefono integer)
 RETURNS VOID AS
 $BODY$
@@ -23,10 +20,10 @@ LANGUAGE 'plpgsql';
 
 SELECT fn_crear_usuario('309', 'Charlotte', 'Fuentes', 'char@gmail.com', '123', '8989',3)
 
---TODO ORDENES
---NOTE CREAR UNA ORDEN
---Debe asignarse a un usuario
---El usuario no puede tener una orden activa
+--!SECTION 
+
+--SECTION ordenes
+
 CREATE OR REPLACE FUNCTION fn_crear_orden(_detalle VARCHAR(300), _dni_usuario VARCHAR(15))
 RETURNS VOID AS
 $BODY$
@@ -52,12 +49,39 @@ END;
 $BODY$
 LANGUAGE'plpgsql';
 
-Select * from ordenes_usuarios
+-- DESACTIVA UNA ORDEN QUE NO TENGA NADA AGREGADO.
+CREATE OR REPLACE FUNCTION fn_desactivar_orden(_id_orden integer)
+RETURNS integer AS
+$BODY$
+BEGIN
+    IF((SELECT activo
+        FROM ordenes_habitaciones
+        WHERE id_orden = _id_orden
+        AND activo = false)
+    OR
+        (SELECT activo
+        FROM ordenes_comidas
+        WHERE id_orden = _id_orden
+        AND activo = false)
+    OR
+        (SELECT activo
+        FROM ordenes_actividades
+        WHERE id_orden = _id_orden
+        AND activo = false))
+            THEN
+                DELETE FROM ordenes_usuarios
+                WHERE id_orden = _id_orden
+                AND activo = true;
+                RETURN 1;
+    END IF;
+RETURN 0;
+END;
+$BODY$
+LANGUAGE 'plpgsql';
 
-SELECT fn_crear_orden('Cliente individual', '309');
+--!SECTION 
 
---NOTE  INGRESAR ACTIVIDADES EN LA ORDEN
---debe existir la orden
+--SECTION actividades de una orden 
 CREATE OR REPLACE FUNCTION fn_orden_actividad( _id_orden integer, _id_actividad integer, _cantidad integer)
 RETURNS VOID AS
 $BODY$
@@ -83,11 +107,57 @@ END;
 $BODY$
 LANGUAGE 'plpgsql';
 
-SELECT fn_orden_actividad(1, 1, 2)
 
---NOTE HABITACION
---debe existir la orden
---debe existir la habitacion y no estar ocupada (activo = true)
+CREATE OR REPLACE FUNCTION fn_quitar_actividad_orden(_dni_usuario VARCHAR,(15), _id_actividad)
+RETURNS integer AS
+$BODY$
+BEGIN
+IF((SELECT activo
+    FROM ordenes_usuarios
+    WHERE dni_usuario = _dni_usuario
+    AND activo = true)
+AND
+    (SELECT activo
+    FROM ordenes_actividades
+    WHERE id_actividad = _id_actividad
+    AND activo = true))
+    THEN
+        DELETE FROM ordenes_actividades
+        WHERE id_actividad = _id_actividad;
+        RETURN 1;
+END;
+RETURN 0;
+$BODY$
+LANGUAGE 'plpgsql';
+
+-- CREATE OR REPLACE FUNCTION fn_eliminar_actividad_orden (_id_orden integer, _id_actividad integer)
+-- RETURNS VOID AS
+-- $BODY$
+-- BEGIN
+-- IF((SELECT activo
+--     FROM ordenes_usuarios
+--     WHERE id_orden = _id_orden
+--     AND activo = true)
+-- AND
+--     (SELECT activo
+--     FROM actividades
+--     WHERE id_actividad = _id_actividad
+--     AND activo = true))
+-- THEN
+--      UPDATE ordenes_actividades
+--             SET cantidad = 0
+--             WHERE id_orden = _id_orden
+--             AND id_actividad = _id_actividad
+--             AND activo = true;
+
+-- END IF;
+-- END;
+-- $BODY$
+-- LANGUAGE 'plpgsql';
+
+--!SECTION 
+
+--SECTION hobitaciones de una orden
 CREATE OR REPLACE FUNCTION fn_orden_habitacion(_id_orden integer, _id_codigo_habitacion varchar(10))
 RETURNS VOID AS
 $BODY$
@@ -113,14 +183,76 @@ END;
 $BODY$
 LANGUAGE 'plpgsql';
 
-SELECT fn_orden_habitacion(1, '02-01')
-
-Select * from ordenes_habitaciones;
-Select * from habitaciones;
-Select * from usuarios;
 
 
---NOTE ELIMINAR UNA HABITACION DE LA ORDEN
+CREATE OR REPLACE FUNCTION fn_aumentar_cantidad_orden_actividad(_id_orden integer, _id_comida integer, _cantidad integer)
+RETURNS VOID AS
+$BODY$
+    DECLARE
+        _cantidad_actual integer;
+BEGIN
+IF((SELECT activo
+    FROM ordenes_usuarios
+    WHERE id_orden = _id_orden
+    AND activo = true)
+AND
+    (SELECT activo
+    FROM comidas
+    WHERE id_comida = _id_comida
+    AND activo = true))
+        THEN 
+            _cantidad_actual = cantidad FROM ordenes_actividades 
+                                        WHERE id_orden = _id_orden 
+                                        AND id_actividad = _id_actividad 
+                                        AND activo = true;
+            UPDATE ordenes_comidas
+            SET cantidad = (_cantidad_actual + _cantidad)
+            WHERE id_orden = _id_orden
+            AND id_comida = _id_comida
+            AND activo = true;
+END IF; 
+END;
+$BODY$
+LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION fn_disminuir_cantidad_orden_actividad(_id_orden integer, _id_actividad integer, _cantidad integer)
+RETURNS VOID AS
+$BODY$
+    DECLARE
+        _cantidad_actual integer;
+BEGIN
+IF((SELECT activo
+    FROM ordenes_usuarios
+    WHERE id_orden = _id_orden
+    AND activo = true)
+AND
+    (SELECT activo
+    FROM actividades
+    WHERE id_actividad = _id_actividad
+    AND activo = true))
+        THEN 
+        _cantidad_actual = cantidad FROM ordenes_actividades 
+                                    WHERE id_orden = _id_orden 
+                                        WHERE id_orden = _id_orden 
+                                    WHERE id_orden = _id_orden 
+                                        WHERE id_orden = _id_orden 
+                                    WHERE id_orden = _id_orden 
+                                    AND id_actividad = _id_actividad 
+                                    AND activo = true;
+
+            UPDATE ordenes_actividades
+            SET cantidad = (_cantidad_actual - _cantidad)
+            WHERE id_orden = _id_orden
+            AND id_actividad = _id_actividad
+            AND activo = true;
+END IF; 
+END;
+$BODY$
+LANGUAGE 'plpgsql';
+
+
+
+
 CREATE OR REPLACE FUNCTION fn_quitar_habitacion_orden(_dni_usuario VARCHAR(15), _id_codigo_habitacion VARCHAR(10))
 RETURNS integer AS
 $BODY$
@@ -149,12 +281,10 @@ END;
 $BODY$
 LANGUAGE 'plpgsql';
 
-SELECT fn_quitar_habitacion_orden('309', '02-01');
+--!SECTION 
 
---NOTE INGRESAR COMIDAS A LA ORDEN
---debe existir la orden 
---si ya existe la comida se debe actualizar la cantidad
 
+--SECTION comidas de una orden
 CREATE OR REPLACE FUNCTION fn_orden_comida(_id_orden integer, _id_comida integer, _cantidad integer)
 RETURNS VOID AS
 $BODY$
@@ -176,7 +306,7 @@ END;
 $BODY$
 LANGUAGE 'plpgsql';
 
-SELECT fn_orden_comida (1, 1, 2)
+
 
 CREATE OR REPLACE FUNCTION fn_aumentar_cantidad_orden_comida(_id_orden integer, _id_comida integer, _cantidad integer)
 RETURNS VOID AS
@@ -227,6 +357,10 @@ AND
         THEN 
             _cantidad_actual = cantidad FROM ordenes_comidas 
                                         WHERE id_orden = _id_orden 
+                                    WHERE id_orden = _id_orden 
+                                        WHERE id_orden = _id_orden 
+                                    WHERE id_orden = _id_orden 
+                                        WHERE id_orden = _id_orden 
                                         AND id_comida = _id_comida 
                                         AND activo = true;
 
@@ -240,98 +374,33 @@ END;
 $BODY$
 LANGUAGE 'plpgsql';
 
-CREATE OR REPLACE FUNCTION fn_aumentar_cantidad_orden_actividad(_id_orden integer, _id_comida integer, _cantidad integer)
-RETURNS VOID AS
+
+
+CREATE OR REPLACE FUNCTION fn_quitar_comida_orden(_dni_usuario VARCHAR(15), _id_comida VARCHAR(100))
+RETURNS integer AS
 $BODY$
-    DECLARE
-        _cantidad_actual integer;
 BEGIN
 IF((SELECT activo
     FROM ordenes_usuarios
-    WHERE id_orden = _id_orden
+    WHERE dni_usuario = _dni_usuario
     AND activo = true)
 AND
     (SELECT activo
-    FROM comidas
+    FROM ordenes_comidas
     WHERE id_comida = _id_comida
     AND activo = true))
-        THEN 
-            _cantidad_actual = cantidad FROM ordenes_actividades 
-                                        WHERE id_orden = _id_orden 
-                                        AND id_actividad = _id_actividad 
-                                        AND activo = true;
-            UPDATE ordenes_comidas
-            SET cantidad = (_cantidad_actual + _cantidad)
-            WHERE id_orden = _id_orden
-            AND id_comida = _id_comida
-            AND activo = true;
-END IF; 
-END;
-$BODY$
-LANGUAGE 'plpgsql';
-
-CREATE OR REPLACE FUNCTION fn_disminuir_cantidad_orden_actividad(_id_orden integer, _id_actividad integer, _cantidad integer)
-RETURNS VOID AS
-$BODY$
-    DECLARE
-        _cantidad_actual integer;
-BEGIN
-IF((SELECT activo
-    FROM ordenes_usuarios
-    WHERE id_orden = _id_orden
-    AND activo = true)
-AND
-    (SELECT activo
-    FROM actividades
-    WHERE id_actividad = _id_actividad
-    AND activo = true))
-        THEN 
-        _cantidad_actual = cantidad FROM ordenes_actividades 
-                                    WHERE id_orden = _id_orden 
-                                    AND id_actividad = _id_actividad 
-                                    AND activo = true;
-
-            UPDATE ordenes_actividades
-            SET cantidad = (_cantidad_actual - _cantidad)
-            WHERE id_orden = _id_orden
-            AND id_actividad = _id_actividad
-            AND activo = true;
-END IF; 
-END;
-$BODY$
-LANGUAGE 'plpgsql';
-
-
---NOTE ELIMINAR ACTIVIDAD DE LA ORDEN
---no debe haber pasado la fecha
-CREATE OR REPLACE FUNCTION fn_eliminar_actividad_orden (_id_orden integer, _id_actividad integer)
-RETURNS VOID AS
-$BODY$
-BEGIN
-IF((SELECT activo
-    FROM ordenes_usuarios
-    WHERE id_orden = _id_orden
-    AND activo = true)
-AND
-    (SELECT activo
-    FROM actividades
-    WHERE id_actividad = _id_actividad
-    AND activo = true))
-THEN
-     UPDATE ordenes_actividades
-            SET cantidad = 0
-            WHERE id_orden = _id_orden
-            AND id_actividad = _id_actividad
-            AND activo = true;
-
+    THEN
+        DELETE FROM ordenes_comidas
+        WHERE id_comida = _id_comida;
+        RETURN 1;
 END IF;
-END;
+RETURN 0;
+END
 $BODY$
 LANGUAGE 'plpgsql';
 
 
---TODO PAGO DE LA ORDEN
---suma de los totales de comida, habitacion y actividad vinculada a la orden del usuario
+--!SECTION 
 
 --FIXME FALTA INSERTAR EL PAGO DE HABITACIONES 
 --REVISAR QUE PASA SI EL USUARIO NO TIENE COMIDAS O ACTIVIDADES O AMBAS 
@@ -366,39 +435,23 @@ THEN
         FROM ordenes_actividades a 
         JOIN actividades b ON b.id_actividad = a.id_actividad;
 
+--REVIEW COMO SACAR INTERVALOS DE FECHAS
+
     _pago_total = _pago_comidas + _pago_actividades;
 
     RETURN _pago_total;
 END IF;
- RETURN 0;
+RETURN 0;
 END;
-
 $BODY$
 LANGUAGE 'plpgsql';
 
-SELECT fn_pago_orden('309');
 
-SELECT * FROM habitaciones;
-SELECT * FROM ordenes_habitaciones;
-SELECT * FROM ordenes_actividades;
-SELECT * FROM ordenes_comidas;
-SELECT * FROM ordenes_usuarios;
+--!SECTION 
 
 
 
 
+--SECTION REPORTES
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+--!SECTION 
